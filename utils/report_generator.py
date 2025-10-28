@@ -7,7 +7,7 @@ from reportlab.platypus import (
 from datetime import datetime
 import os
 
-def generate_report(results, output_file="scan_report.pdf", team_name="Team CyberShield", logo_path=None):
+def generate_report(results, output_file="scan_report.pdf", team_name="Team Jack Warriors", logo_path=None):
     """Generate a styled, professional vulnerability scan report."""
 
     # Create PDF

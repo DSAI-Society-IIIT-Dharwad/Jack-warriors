@@ -1,86 +1,52 @@
-# main.py
 import sys
-import argparse
+import concurrent.futures
+import requests
+from utils.report_generator import generate_report
 from scanner.sql_injection import analyze as sqli_analyze
 from scanner.xss_scanner import analyze as xss_analyze
-from scanner.headers import analyze as headers_analyze
-from scanner.exposed_files import analyze as exposed_analyze
-from scanner.csrf_scanner import analyze as csrf_analyze
-from scanner.outdated_detector import analyze as outdated_analyze
-from utils.report_generator import generate_report
 
-def severity_from_conf(conf):
-    return "High" if conf >= 80 else "Medium" if conf >= 50 else "Low"
-
-def normalize_findings(raw_list):
-    normalized = []
-    for f in raw_list:
-        nf = {
-            "name": f.get("vulnerability", f.get("name", "Unknown")),
-            "type": f.get("type", ""),
-            "payload": f.get("payload", ""),
-            "description": f.get("evidence", ""),
-            "url": f.get("url", ""),
-            "confidence": f.get("confidence", 50),
-            "severity": f.get("severity") or severity_from_conf(f.get("confidence", 50)),
-            "recommendation": f.get("recommendation", "")
-        }
-        normalized.append(nf)
-    return normalized
-
-def run_scanners(target):
-    findings = []
-    scanners = [
-        ("SQL Injection", sqli_analyze),
-        ("Reflected XSS", xss_analyze),
-        ("Headers", headers_analyze),
-        ("Exposed Files", exposed_analyze),
-        ("CSRF", csrf_analyze),
-        ("Outdated Components", outdated_analyze),
-    ]
-    for name, func in scanners:
-        print(f"[*] Running {name} scanner...")
-        try:
-            raw = func(target)
-            if raw:
-                normalized = normalize_findings(raw)
-                findings.extend(normalized)
-                print(f"    -> {len(normalized)} findings from {name}")
-            else:
-                print("    -> No findings")
-        except Exception as e:
-            print(f"    -> Scanner {name} crashed: {e}")
-    return findings
+def scan_url(url):
+    """Runs all scanners for a single URL and returns combined results."""
+    results = []
+    try:
+        results.extend(sqli_analyze(url))
+        results.extend(xss_analyze(url))
+    except Exception as e:
+        print(f"[!] Error scanning {url}: {e}")
+    return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Web Vulnerability Scanner")
-    parser.add_argument("target", nargs="?", help="Target URL (e.g. http://example.com/page.php?id=1)")
-    parser.add_argument("--team", default="Team CyberShield", help="Team name for report")
-    parser.add_argument("--logo", default=None, help="Path to team logo for report (optional)")
-    args = parser.parse_args()
+    if len(sys.argv) < 2:
+        print("Usage: py main.py <target_url>")
+        print("Example: py main.py http://testphp.vulnweb.com/")
+        return
 
-    if not args.target:
-        # interactive prompt if no positional provided
-        args.target = input("Enter target URL (e.g., http://testphp.vulnweb.com/): ").strip()
-        if not args.target:
-            print("No target provided. Exiting.")
-            sys.exit(1)
+    target = sys.argv[1]
 
-    target = args.target
-    print(f"\n🔍 Starting vulnerability scan for: {target}\n")
+    # Example: you can later load multiple URLs from a list or file
+    urls_to_scan = [target]
 
-    findings = run_scanners(target)
+    print(f"🔍 Starting concurrent scan on {len(urls_to_scan)} URL(s)...\n")
 
-    if findings:
-        print(f"\n[!] {len(findings)} potential issues found. Generating report...")
-        # generate_report(results, output_file="scan_report.pdf", team_name="Team...", logo_path=...)
-        generate_report(findings, output_file="scan_report.pdf", team_name=args.team, logo_path=args.logo)
-        print("📄 Report created: scan_report.pdf")
+    all_results = []
+
+    # ⚡ Run scans in parallel
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(scan_url, url): url for url in urls_to_scan}
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                results = future.result()
+                all_results.extend(results)
+                print(f"✅ Completed scan for: {url}")
+            except Exception as e:
+                print(f"❌ Error scanning {url}: {e}")
+
+    if all_results:
+        print(f"\n🛡 Scan complete — found {len(all_results)} potential vulnerabilities.")
+        generate_report(all_results, team_name="Team Jack Warriors")
     else:
-        # still produce a clean report indicating no findings
-        print("\n✅ No significant vulnerabilities detected. Generating clean report...")
-        generate_report([], output_file="scan_report.pdf", team_name=args.team, logo_path=args.logo)
-        print("📄 Report created: scan_report.pdf")
+        print("✅ No significant vulnerabilities detected.")
 
 if __name__ == "__main__":
     main()
