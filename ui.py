@@ -2,7 +2,7 @@ import streamlit as st
 import tempfile
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict
 
 from scanner.sql_injection import analyze as sqli_analyze
@@ -374,7 +374,7 @@ def append_scan_history(target_url: str, findings: List[Dict]):
         med = sum(1 for f in findings if (f.get("severity") or "").lower().startswith("medium"))
         low = sum(1 for f in findings if (f.get("severity") or "").lower().startswith("low"))
         rec = {
-            "time": datetime.utcnow().isoformat(),
+            "time": datetime.now(timezone.utc).isoformat(),
             "target": target_url,
             "total": len(findings),
             "high": high,
@@ -613,7 +613,6 @@ elif st.session_state.step == 2:
 
     if st.session_state.scanned and st.session_state.findings:
         render_summary_cards(st.session_state.findings)
-        render_severity_metrics(st.session_state.findings)
         render_findings_table(st.session_state.findings)
 
     colb, coln = st.columns([1, 1])
