@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import List, Dict
 
 from scanner.sql_injection import analyze as sqli_analyze
-from scanner.xss import analyze as xss_analyze
+from scanner.xss_scanner import analyze as xss_analyze
 from scanner.headers import analyze as headers_analyze
 from scanner.exposed_files import analyze as exposed_analyze
 from scanner.csrf_scanner import analyze as csrf_analyze
@@ -639,7 +639,7 @@ elif st.session_state.step == 3:
 
         if st.button("Generate PDF Report"):
             with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
-                generate_report(st.session_state.target.strip(), st.session_state.findings, filename=tmp.name)
+                generate_report(st.session_state.findings, output_file=tmp.name, team_name="Team Jack Warriors")
                 tmp.flush()
                 tmp.seek(0)
                 st.session_state.report_bytes = tmp.read()
