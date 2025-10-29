@@ -4,6 +4,15 @@ import requests
 from utils.report_generator import generate_report
 from scanner.sql_injection import analyze as sqli_analyze
 from scanner.xss_scanner import analyze as xss_analyze
+ 
+def _supports_unicode() -> bool:
+    enc = getattr(sys.stdout, "encoding", None)
+    return bool(enc and "utf" in enc.lower())
+
+ICON_CHECK = "🔍" if _supports_unicode() else "[*]"
+ICON_OK = "✅" if _supports_unicode() else "[OK]"
+ICON_ERR = "❌" if _supports_unicode() else "[ERR]"
+ICON_SHIELD = "🛡" if _supports_unicode() else "[DONE]"
 
 def scan_url(url):
     """Runs all scanners for a single URL and returns combined results."""
@@ -26,7 +35,7 @@ def main():
     # Example: you can later load multiple URLs from a list or file
     urls_to_scan = [target]
 
-    print(f"🔍 Starting concurrent scan on {len(urls_to_scan)} URL(s)...\n")
+    print(f"{ICON_CHECK} Starting concurrent scan on {len(urls_to_scan)} URL(s)...\n")
 
     all_results = []
 
@@ -38,15 +47,15 @@ def main():
             try:
                 results = future.result()
                 all_results.extend(results)
-                print(f"✅ Completed scan for: {url}")
+                print(f"{ICON_OK} Completed scan for: {url}")
             except Exception as e:
-                print(f"❌ Error scanning {url}: {e}")
+                print(f"{ICON_ERR} Error scanning {url}: {e}")
 
     if all_results:
-        print(f"\n🛡 Scan complete — found {len(all_results)} potential vulnerabilities.")
+        print(f"\n{ICON_SHIELD} Scan complete — found {len(all_results)} potential vulnerabilities.")
         generate_report(all_results, team_name="Team Jack Warriors")
     else:
-        print("✅ No significant vulnerabilities detected.")
+        print(f"{ICON_OK} No significant vulnerabilities detected.")
 
 if __name__ == "__main__":
     main()
