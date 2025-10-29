@@ -1,0 +1,74 @@
+[
+  {
+    "time": "2025-10-29T00:28:17.111943",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T00:31:02.246279",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T00:34:10.085605",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T00:38:57.610490",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T00:41:30.801349",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T00:52:22.998372",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T01:00:34.686537",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T01:04:25.295485",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  },
+  {
+    "time": "2025-10-29T01:16:16.150227",
+    "target": "http://testphp.vulnweb.com/",
+    "total": 2,
+    "high": 1,
+    "medium": 1,
+    "low": 0
+  }
+]
